@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Balereot Community</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --bg-base: #050505;
+            --bg-surface: #0a0a0c;
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #8b949e;
+            --accent: #a855f7; 
+            --accent-glow: rgba(168, 85, 247, 0.3);
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.08), transparent 50%);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p { color: var(--text-secondary); font-size: 0.9rem; margin-top: 5px; }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Card / Panels */
+        .panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        /* Form Styling */
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--accent);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+        .btn-primary:hover { background: #9333ea; transform: translateY(-2px); }
+
+        /* List Items */
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .list-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            padding: 12px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-info h4 { font-size: 0.95rem; margin-bottom: 3px; }
+        .item-info p { font-size: 0.75rem; color: var(--text-secondary); }
+        .item-badge {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            margin-left: 8px;
+        }
+
+        .item-actions button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+
+        .item-actions button:hover { color: var(--danger); }
+        .edit-btn:hover { color: var(--accent) !important; }
+
+        /* JSON Output */
+        .json-output {
+            grid-column: 1 / -1; /* Full width */
+        }
+        .json-output pre {
+            background: #000;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #10b981;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+        }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); }
+
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Admin Panel</h1>
+        <p>Balereot Community - config.json Generator</p>
+    </div>
+
+    <div class="container">
+        <!-- Form Panel -->
+        <div class="panel">
+            <h2 class="panel-title"><i class="ph-bold ph-plus-circle"></i> Tambah / Edit Data</h2>
+            
+            <form id="dataForm">
+                <input type="hidden" id="editIndex" value="-1">
+                
+                <div class="form-group">
+                    <label>Tipe Item</label>
+                    <select id="inputType" onchange="toggleFields()">
+                        <option value="script">Script (.lua file)</option>
+                        <option value="loadstring">Loadstring (Code Eksekusi)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Judul / Nama Item</label>
+                    <input type="text" id="inputTitle" placeholder="Contoh: AirControl Movement" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Deskripsi Pendek</label>
+                    <input type="text" id="inputDesc" placeholder="Contoh: Script agar lompatan responsif">
+                </div>
+
+                <!-- Field untuk Script (File Path) -->
+                <div class="form-group" id="fieldFile">
+                    <label>Path File .lua (Dalam folder)</label>
+                    <input type="text" id="inputFile" placeholder="Contoh: data/AirControl.lua">
+                </div>
+
+                <!-- Field untuk Loadstring (Code URL) -->
+                <div class="form-group" id="fieldCode" style="display: none;">
+                    <label>Kode Loadstring</label>
+                    <textarea id="inputCode" rows="3" placeholder="Contoh: loadstring(game:HttpGet('URL'))()"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="ph-bold ph-floppy-disk"></i> Simpan ke List
+                </button>
+                <button type="button" class="btn btn-outline" style="margin-top: 10px; display: none;" id="cancelBtn" onclick="resetForm()">
+                    Batal Edit
+                </button>
+            </form>
+        </div>
+
+        <!-- List Panel -->
+        <div class="panel">
+            <h2 class="panel-title"><i class="ph-bold ph-list-dashes"></i> Current List</h2>
+            <div class="list-container" id="listContainer">
+                <!-- Data akan dimuat disini via JS -->
+            </div>
+            
+            <!-- Import existing JSON -->
+            <div style="margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 15px;">
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;">*Punya config.json lama? Paste disini lalu klik Import</p>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="importInput" placeholder='Paste text isi config.json lama disini...' style="flex: 1; font-size: 0.8rem;">
+                    <button class="btn btn-outline" style="width: auto; padding: 0 15px;" onclick="importJSON()">Import</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- JSON Output Panel -->
+        <div class="panel json-output">
+            <h2 class="panel-title"><i class="ph-bold ph-code"></i> Hasil config.json</h2>
+            <pre id="jsonPreview">[]</pre>
+            
+            <div class="action-row">
+                <button class="btn btn-primary" onclick="copyJSON()">
+                    <i class="ph-bold ph-copy"></i> Salin JSON
+                </button>
+                <button class="btn btn-outline" onclick="downloadJSON()">
+                    <i class="ph-bold ph-download-simple"></i> Download config.json
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data State
+        let configData = [];
+
+        // DOM Elements
+        const form = document.getElementById('dataForm');
+        const inputType = document.getElementById('inputType');
+        const inputTitle = document.getElementById('inputTitle');
+        const inputDesc = document.getElementById('inputDesc');
+        const inputFile = document.getElementById('inputFile');
+        const inputCode = document.getElementById('inputCode');
+        const editIndex = document.getElementById('editIndex');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        
+        // Initial Fetch (Coba ambil config.json jika berada di folder yg sama)
+        window.onload = async () => {
+            try {
+                const response = await fetch('config.json');
+                if(response.ok) {
+                    configData = await response.json();
+                    updateUI();
+                }
+            } catch(e) {
+                console.log("Memulai dengan array kosong.");
+            }
+        };
+
+        // Ganti form input berdasarkan pilihan dropdown
+        function toggleFields() {
+            if (inputType.value === 'script') {
+                document.getElementById('fieldFile').style.display = 'block';
+                document.getElementById('fieldCode').style.display = 'none';
+            } else {
+                document.getElementById('fieldFile').style.display = 'none';
+                document.getElementById('fieldCode').style.display = 'block';
+            }
+        }
+
+        // Handle Submit (Tambah / Edit)
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const newItem = {
+                title: inputTitle.value.trim(),
+                description: inputDesc.value.trim(),
+                type: inputType.value
+            };
+
+            // Masukkan data spesifik sesuai tipe
+            if(inputType.value === 'script') {
+                newItem.file = inputFile.value.trim();
+            } else {
+                newItem.code = inputCode.value.trim();
+            }
+
+            const currentIndex = parseInt(editIndex.value);
+            
+            if(currentIndex === -1) {
+                // Mode Tambah
+                configData.push(newItem);
+            } else {
+                // Mode Edit
+                configData[currentIndex] = newItem;
+            }
+
+            updateUI();
+            resetForm();
+        });
+
+        // Edit Item
+        function editItem(index) {
+            const item = configData[index];
+            editIndex.value = index;
+            inputType.value = item.type || 'script';
+            inputTitle.value = item.title;
+            inputDesc.value = item.description || '';
+            
+            toggleFields();
+
+            if(inputType.value === 'script') {
+                inputFile.value = item.file || '';
+            } else {
+                inputCode.value = item.code || '';
+            }
+
+            submitBtn.innerHTML = '<i class="ph-bold ph-check"></i> Update Data';
+            submitBtn.style.background = '#f59e0b'; // Ubah warna jadi kuning saat mode edit
+            cancelBtn.style.display = 'block';
+        }
+
+        // Hapus Item
+        function deleteItem(index) {
+            if(confirm("Yakin ingin menghapus item ini?")) {
+                configData.splice(index, 1);
+                updateUI();
+                resetForm();
+            }
+        }
+
+        // Reset Form ke keadaan awal
+        function resetForm() {
+            form.reset();
+            editIndex.value = -1;
+            toggleFields();
+            submitBtn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan ke List';
+            submitBtn.style.background = 'var(--accent)';
+            cancelBtn.style.display = 'none';
+        }
+
+        // Update HTML List dan JSON Preview
+        function updateUI() {
+            const listContainer = document.getElementById('listContainer');
+            listContainer.innerHTML = '';
+
+            if(configData.length === 0) {
+                listContainer.innerHTML = '<p style="text-align:center; color:gray; font-size:0.85rem; padding: 20px;">List kosong. Tambahkan data di sebelah kiri.</p>';
+            }
+
+            configData.forEach((item, index) => {
+                const badge = item.type === 'loadstring' ? 
+                    '<span class="item-badge" style="color: #6ee7b7; background: rgba(16,185,129,0.1)">Loadstring</span>' : 
+                    '<span class="item-badge" style="color: #c4b5fd; background: rgba(139,92,246,0.1)">Script</span>';
+
+                listContainer.innerHTML += `
+                    <div class="list-item">
+                        <div class="item-info">
+                            <h4>${item.title} ${badge}</h4>
+                            <p>${item.description || 'Tidak ada deskripsi'}</p>
+                        </div>
+                        <div class="item-actions">
+                            <button class="edit-btn" onclick="editItem(${index})"><i class="ph-bold ph-pencil-simple"></i></button>
+                            <button onclick="deleteItem(${index})"><i class="ph-bold ph-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Tampilkan struktur JSON di bagian bawah
+            document.getElementById('jsonPreview').textContent = JSON.stringify(configData, null, 2);
+        }
+
+        // Fitur Import
+        function importJSON() {
+            const rawData = document.getElementById('importInput').value;
+            try {
+                const parsed = JSON.parse(rawData);
+                if(Array.isArray(parsed)) {
+                    configData = parsed;
+                    updateUI();
+                    alert("Berhasil import config.json!");
+                    document.getElementById('importInput').value = '';
+                } else {
+                    alert("Format JSON salah. Pastikan menggunakan format Array [ ... ].");
+                }
+            } catch (error) {
+                alert("Gagal membaca JSON. Pastikan text yang disalin valid!");
+            }
+        }
+
+        // Copy / Download JSON
+        function copyJSON() {
+            const jsonText = document.getElementById('jsonPreview').textContent;
+            navigator.clipboard.writeText(jsonText).then(() => {
+                alert("JSON berhasil disalin! Anda bisa mem-paste nya di file config.json");
+            });
+        }
+
+        function downloadJSON() {
+            const jsonText = document.getElementById('jsonPreview').textContent;
+            const blob = new Blob([jsonText], { type: "application/json" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "config.json";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
